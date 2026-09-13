@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+.nox/
+.ruff_cache/
+.mypy_cache/
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# xniffer runtime output -- captures may contain sensitive traffic, never commit them.
+# Sample captures intentionally shipped with the project live in tests/data/ and
+# examples/ and are force-added there.
+*.pcap
+*.pcapng
+*.cap
+!tests/data/*.pcap
+!examples/*.pcap
+findings.jsonl
+*.findings.jsonl
+report.md
+xniffer.log

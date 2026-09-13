@@ -1,0 +1,103 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xniffer"
+dynamic = ["version"]
+description = "Modular network traffic analyzer that turns packets into explainable security findings"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "whitexudan15", email = "whitexudan@gmail.com" }]
+keywords = [
+    "network",
+    "sniffer",
+    "packet-analysis",
+    "pcap",
+    "scapy",
+    "security",
+    "blue-team",
+    "network-forensics",
+    "threat-detection",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: System :: Networking :: Monitoring",
+    "Typing :: Typed",
+]
+dependencies = [
+    "scapy>=2.5.0",
+    "typer>=0.12.0",
+    "rich>=13.0.0",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/whitexudan15/CodeAlpha_NetworkSniffer"
+Repository = "https://github.com/whitexudan15/CodeAlpha_NetworkSniffer"
+Issues = "https://github.com/whitexudan15/CodeAlpha_NetworkSniffer/issues"
+
+[project.scripts]
+xniffer = "xniffer.cli:main"
+
+# Third-party packages can ship additional detection rules by advertising a
+# directory of YAML rule files under this entry-point group. See docs/rules.md.
+[project.entry-points."xniffer.rules"]
+
+[tool.setuptools.dynamic]
+version = { attr = "xniffer.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+xniffer = ["detect/rules/*.yaml", "py.typed"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "root: requires root privileges / live network access (deselect with '-m \"not root\"')",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:scapy.*",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RET", "PTH", "RUF"]
+ignore = [
+    "B008",   # typer uses function calls in argument defaults by design
+    "RUF012", # mutable class attrs without ClassVar - noisy on dataclass defaults
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
+
+[tool.coverage.run]
+source = ["xniffer"]
+branch = true
