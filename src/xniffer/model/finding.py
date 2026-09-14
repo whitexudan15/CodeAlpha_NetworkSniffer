@@ -30,6 +30,27 @@ from xniffer.model._serde import jsonify
 from xniffer.model.enums import Confidence, FindingStatus, Severity
 
 
+def _format_evidence_value(value: Any) -> str:
+    """Render a measured value for display in a finding.
+
+    Floats are trimmed rather than shown at full binary precision: a reader
+    comparing 0.94 against a 0.7 threshold is not helped by
+    ``0.9400000000000001``. Integers stay exact, since a packet or port count
+    rounded for display would be a lie about what was measured.
+    """
+    if isinstance(value, str):
+        return value
+    if isinstance(value, bool):
+        return "yes" if value else "no"
+    if isinstance(value, float):
+        if value != value or value in (float("inf"), float("-inf")):
+            return str(value)
+        if value == int(value) and abs(value) < 1e15:
+            return str(int(value))
+        return f"{value:.4g}"
+    return str(value)
+
+
 @dataclass(frozen=True, slots=True)
 class Evidence:
     """One measured fact that contributed to a finding.
@@ -37,19 +58,31 @@ class Evidence:
     Storing the threshold alongside the value is what turns "suspicious
     activity" into "21 destination hosts, and the rule fires at 15". The reader
     can immediately judge whether the rule was close to the line or far past it.
+
+    Values and thresholds are measurements, so they arrive as numbers far more
+    often than as text. Rather than making every caller remember to stringify,
+    ``__post_init__`` normalises them once, here. A rule that passed an int used
+    to render fine in JSON and crash the terminal report -- a failure that only
+    appeared at the moment someone was reading a real finding.
     """
 
     label: str
     """What was measured, in plain words (``distinct destination hosts``)."""
 
     value: str
-    """The measured value, pre-formatted for display."""
+    """The measured value. Numbers are accepted and formatted on construction."""
 
     threshold: str | None = None
     """The comparison that made it notable (``>= 15``), when there was one."""
 
     packet_ids: tuple[int, ...] = ()
     """Capture indices that specifically demonstrate this fact."""
+
+    def __post_init__(self) -> None:
+        """Coerce numeric values and thresholds to their display form."""
+        object.__setattr__(self, "value", _format_evidence_value(self.value))
+        if self.threshold is not None:
+            object.__setattr__(self, "threshold", _format_evidence_value(self.threshold))
 
     def to_dict(self) -> dict[str, Any]:
         """Serialise for JSON output."""

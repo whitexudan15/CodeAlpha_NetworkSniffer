@@ -160,8 +160,14 @@ class RuleSpec:
     description: str = ""
     """What the rule looks for, for ``xniffer rules list``."""
 
-    recommendation: str = ""
-    """What an analyst should do next."""
+    recommendation: tuple[str, ...] = ()
+    """Ordered next steps for an analyst.
+
+    A tuple rather than a paragraph, matching
+    :attr:`~xniffer.model.finding.Finding.recommendation`, so the engine can
+    pass it straight through. YAML may give a single string or a list; the
+    loader normalises both.
+    """
 
     false_positive_notes: tuple[str, ...] = ()
     """Benign explanations this rule cannot rule out. Required, not optional."""
@@ -418,7 +424,9 @@ def parse_rule(data: Mapping[str, Any], source: str = "<memory>") -> RuleSpec:
         version=int(data.get("version", 1)),
         reason=str(data.get("reason", "")),
         description=str(data.get("description", "")),
-        recommendation=str(data.get("recommendation", "")),
+        recommendation=_parse_string_list(
+            data.get("recommendation"), "recommendation", rule_id, source
+        ),
         false_positive_notes=false_positive_notes,
         attack=_parse_attack(data.get("attack"), rule_id, source),
         context_metrics=context_metrics,
