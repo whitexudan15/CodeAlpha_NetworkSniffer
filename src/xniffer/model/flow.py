@@ -303,7 +303,10 @@ class Flow:
         """A readable one-line description of the conversation."""
         service = describe_port(self.key.port_b if self.key.port_b else None)
         name = f" ({self.server_name})" if self.server_name else ""
-        return f"{self.key.protocol} {self.key.endpoint_a} <-> {self.key.endpoint_b}{name} [{service}]"
+        return (
+            f"{self.key.protocol} {self.key.endpoint_a} <-> "
+            f"{self.key.endpoint_b}{name} [{service}]"
+        )
 
     def to_dict(self) -> dict[str, Any]:
         """Serialise for JSON output."""

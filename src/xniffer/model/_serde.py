@@ -32,7 +32,7 @@ def jsonify(value: Any, *, drop_none: bool = True) -> Any:
             converted = jsonify(getattr(value, field.name), drop_none=drop_none)
             if drop_none and converted is None:
                 continue
-            if drop_none and converted == () or (drop_none and converted == []):
+            if drop_none and converted in ((), []):
                 continue
             result[field.name] = converted
         return result

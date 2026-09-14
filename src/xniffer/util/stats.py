@@ -11,6 +11,7 @@ from __future__ import annotations
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
+from itertools import pairwise
 
 
 def mean(values: Sequence[float]) -> float:
@@ -46,8 +47,8 @@ def percentile(values: Sequence[float], fraction: float) -> float:
     if len(ordered) == 1:
         return ordered[0]
     position = fraction * (len(ordered) - 1)
-    lower = int(math.floor(position))
-    upper = int(math.ceil(position))
+    lower = math.floor(position)
+    upper = math.ceil(position)
     if lower == upper:
         return ordered[lower]
     weight = position - lower
@@ -59,7 +60,7 @@ def intervals_between(timestamps: Sequence[float]) -> list[float]:
     if len(timestamps) < 2:
         return []
     ordered = sorted(timestamps)
-    return [later - earlier for earlier, later in zip(ordered, ordered[1:], strict=False)]
+    return [later - earlier for earlier, later in pairwise(ordered)]
 
 
 @dataclass(frozen=True, slots=True)

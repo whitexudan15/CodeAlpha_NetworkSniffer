@@ -125,7 +125,10 @@ class PayloadInfo:
             preview = ""
         else:
             raw_preview = printable_preview(data, limit=preview_limit)
-            preview = raw_preview if mode is RedactionMode.FULL else redact_secrets(raw_preview).text
+            if mode is RedactionMode.FULL:
+                preview = raw_preview
+            else:
+                preview = redact_secrets(raw_preview).text
 
         return cls(
             length=length,
